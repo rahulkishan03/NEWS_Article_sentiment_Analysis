@@ -14,6 +14,7 @@ nltk.download('vader_lexicon')
 from flair.models import TextClassifier
 from flair.data import Sentence
 from textblob import TextBlob
+from tqdm import tqdm
 
 """### Parameter """
 ### parameter 
@@ -89,7 +90,7 @@ article = []
 headline = []
 count = 0
 
-for link in top_ten_news:
+for link in tqdm(top_ten_news):
   news_data = get_url_data(link)
   info = news_data.find_all('div', class_='wysiwyg wysiwyg--all-content css-1ck9wyi')
   res = news_data.find('script')
