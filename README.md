@@ -7,7 +7,7 @@ The purpose of the document is to explain the details of the project:
 ### Step 1: Get NEWS link from given URL 
 a. Pull all the NEWS articles URL from the page url = "https://www.aljazeera.com/where/mozambique/" using python package request and BeautifulSoup.
 
-b. I did not pull only top 10 links because few NEWS articles were missing description.
+b. I did not pull only top 10 links at the start as few NEWS articles were missing description.
 
 c. On close examination of the NEWS link it was observe that it contains Date in the URL and were arranged from latest to older 
 example: https://www.aljazeera.com/news/2022/5/23/floods-hit-south-africas-kwazulu-natal-province-again',
