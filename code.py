@@ -1,4 +1,3 @@
-
 ### Import packages 
 import json
 import requests
@@ -6,46 +5,46 @@ import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
 import plotly.express as px
-import pep8
-
 import spacy
 nlp=spacy.load('en_core_web_sm')
-
 from nltk.sentiment import SentimentIntensityAnalyzer
 import operator
 import nltk
 nltk.download('vader_lexicon')
-
 from flair.models import TextClassifier
 from flair.data import Sentence
 from textblob import TextBlob
-"""### Parameter """
+from tqdm import tqdm
 
+"""### Parameter """
 ### parameter 
 ### URL from which data need to be pulled 
 url = "https://www.aljazeera.com/where/mozambique/"
-
-
 """### Methods"""
+
+### Get the data from the URL 
 def get_url_data(url): 
   data = requests.request("GET", url) ### get request to fetch the data for the URL 
   data_soup = BeautifulSoup(data.content, 'html.parser') ### coverting the data into BeautifulSoup format for easy access of data
 
   return data_soup
-  
+
+### Conver the text data into lower case
 def convert_to_lower_case(dataset):
     def lower(input_text):
         return input_text.lower()
     dataset['headline']=dataset['headline'].apply(lower)
     dataset['article']=dataset['article'].apply(lower)
-    
+  
+### Remove punctuation
 def remove_punctuation(dataset):
     def remove_punctuation_from_text(input_text):
         output_list=[word for word in input_text.split() if word.isalpha()]
         return ' '.join(output_list)    
     dataset['headline']=dataset['headline'].apply(remove_punctuation_from_text)
     dataset['article']=dataset['article'].apply(remove_punctuation_from_text)
-    
+
+### Correct the words 
 def correct_words(dataset):
     def correct_text(input_text):
         list_1=[str(TextBlob(word).correct()) for word in input_text.split()]
@@ -53,7 +52,8 @@ def correct_words(dataset):
         return output_text
     dataset['headline']=dataset['headline'].apply(correct_text)
     dataset['article']=dataset['article'].apply(correct_text)
-    
+
+### Going to the root word   
 def lemmatize(dataset):
     def lematize_text(input_text):
         doc=nlp(input_text)
@@ -62,7 +62,8 @@ def lemmatize(dataset):
         return output_text
     dataset['headline']=dataset['headline'].apply(lematize_text)
     dataset['article']=dataset['article'].apply(lematize_text)
-    
+
+### removing stop words 
 def remove_stopwords(dataset):
     def remove_stopwords_from_text(input_text):
         stopwords=spacy.lang.en.stop_words.STOP_WORDS
@@ -70,7 +71,6 @@ def remove_stopwords(dataset):
         return ' '.join(output_list)
     dataset['headline']=dataset['headline'].apply(remove_stopwords_from_text)
     dataset['article']=dataset['article'].apply(remove_stopwords_from_text)
-
 
 """### Code Flow"""
 
@@ -85,13 +85,12 @@ top_ten_news = []
 for link in News_links: 
   top_ten_news.append("https://www.aljazeera.com" + link["href"])
 
-
 ### Get data from top ten NEWS link
 article = []
 headline = []
 count = 0
 
-for link in top_ten_news:
+for link in tqdm(top_ten_news):
   news_data = get_url_data(link)
   info = news_data.find_all('div', class_='wysiwyg wysiwyg--all-content css-1ck9wyi')
   res = news_data.find('script')
@@ -105,7 +104,11 @@ for link in top_ten_news:
     if count == 10: ### Filtring the top 10 working articles 
       break
 
+### Making a dataFrame
 df = pd.DataFrame({"headline": headline, "article": article })
+
+### Saving the article in a json file 
+df[['headline', 'article']].to_json("News.json")
 
 """### Data cleaning"""
 
@@ -114,15 +117,27 @@ remove_punctuation(df)
 lemmatize(df)
 remove_stopwords(df)
 
+"""### Sentiment Analysis using SentimentIntensityAnalyzer """
+
+df_copy1 = df.copy()
+df_copy2 = df.copy()
+df_copy3 = df.copy()
+
 sia = SentimentIntensityAnalyzer()
-df["sentiment_score"] = df["headline"].apply(lambda x: sia.polarity_scores(x)["compound"])
-df["sentiment"] = np.select([df["sentiment_score"] < 0, df["sentiment_score"] == 0, df["sentiment_score"] > 0],['neg', 'neu', 'pos'])
+df_copy1["sentiment_score"] = df_copy1["headline"].apply(lambda x: sia.polarity_scores(x)["compound"])
+df_copy1["sentiment"] = np.select([df_copy1["sentiment_score"] < 0, df_copy1["sentiment_score"] == 0, df_copy1["sentiment_score"] > 0],['neg', 'neu', 'pos'])
 
+print("SentimentIntensityAnalyzer")
+print(df_copy1)
 
+"""### Sentiment Analysis using TextBlob """
 
-df["sentiment_score"] = df["headline"].apply(lambda x: TextBlob(str(x)).sentiment.polarity)
-df["sentiment"] = np.select([df["sentiment_score"] < 0, df["sentiment_score"] == 0, df["sentiment_score"] > 0],
+df_copy2["sentiment_score"] = df_copy2["headline"].apply(lambda x: TextBlob(str(x)).sentiment.polarity)
+df_copy2["sentiment"] = np.select([df_copy2["sentiment_score"] < 0, df_copy2["sentiment_score"] == 0, df_copy2["sentiment_score"] > 0],
                            ['neg', 'neu', 'pos'])
+
+print("TextBlob")
+print(df_copy2)
 
 sia = TextClassifier.load('en-sentiment')
 def flair_prediction(x):
@@ -135,12 +150,21 @@ def flair_prediction(x):
         return "neg"
     else:
         return "neu"
-df["sentiment"] = df["headline"].apply(flair_prediction)
+df_copy3["sentiment"] = df_copy3["headline"].apply(flair_prediction)
+
+print("flair_prediction")
+print(df_copy3)
 
 """### Visualization"""
 
-x = df['sentiment'].value_counts()
-
+x = df_copy1['sentiment'].value_counts()
 fig = px.bar(x)
 fig.show()
 
+x = df_copy2['sentiment'].value_counts()
+fig = px.bar(x)
+fig.show()
+
+x = df_copy3['sentiment'].value_counts()
+fig = px.bar(x)
+fig.show()
