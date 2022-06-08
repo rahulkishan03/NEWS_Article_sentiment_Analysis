@@ -15,7 +15,9 @@ from flair.models import TextClassifier
 from flair.data import Sentence
 from textblob import TextBlob
 from tqdm import tqdm
+import time
 
+start = time.time()
 """### Parameter """
 ### parameter 
 ### URL from which data need to be pulled 
@@ -168,3 +170,7 @@ fig.show()
 x = df_copy3['sentiment'].value_counts()
 fig = px.bar(x)
 fig.show()
+
+end = time.time()
+total_time = end - start
+print("\n"+ str(total_time))
