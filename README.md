@@ -35,7 +35,7 @@ Three combination of text was used for the Sentiment analysis:
 2. using Article 
 3. Using combination of Article and Headline ("News_data")
 
-#### *It was observed, there was not much improvement in the prediction with option 2(Article) or option 3(Article + Headline) as compared to option 1 (prediction in Headline). So the final code was trained only on Headline.*
+### *It was observed, there was not much improvement in the prediction with option 2(Article) or option 3(Article + Headline) as compared to option 1 (prediction in Headline). So the final code was trained only on Headline.*
 
 #### *Best result was achived through the Flair*
 
