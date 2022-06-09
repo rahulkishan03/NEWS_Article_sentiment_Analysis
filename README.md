@@ -30,6 +30,15 @@ a. Apply the below data cleaning for both headline and description in the datafr
 
 ## Step 4: Applied 3 an off-the-shelf library for sentiment analysis (NLTK (VADER), TextBlob)
 
+Three combination of text was used for the Sentiment analysis:
+1. Using Headline
+2. using Article 
+3. Using combination of Article and Headline ("News_data")
+
+#### *It was observed, there was not much improvement in the prediction with option 2(Article) or option 3(Article + Headline) as compared to option 1 (prediction in Headline). So the final code was trained only on Headline.*
+
+#### *Best result was achived through the Flair*
+
 ### NLTK (VADER) and TextBlob:
 Both packages rely on a rules-based sentiment analyzer. It, therefore, attaches a positive or negative rating to certain words (ex. horrible has a negative association), pays attention to negation if it exists, and returns values based on these words. This tends to work fine, and has the advantage of being simple and extremely fast, but has some weaknesses.
 
@@ -47,4 +56,12 @@ b. Visualization picture is stored in visualization folder
 ## Total Time: 15 Sec
 
 # Data 
-# *Please refer to data.json file in the repository*
+## *Please refer to data.json file in the repository for the Headline and Article data fetched from Url*
+
+# How to Run the code 
+
+1. Install python and pip3
+3. Open the code using any IDE like Visual studio code/PyCharm etc. 
+4. Install all the packages from requiremnet.txt
+5. Run the code
+6. Check the printed data frames, data.json file and charts for results
