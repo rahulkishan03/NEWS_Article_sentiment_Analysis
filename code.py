@@ -119,6 +119,9 @@ remove_punctuation(df)
 lemmatize(df)
 remove_stopwords(df)
 
+"""### Combining Headline and article """
+df["news_data"] = df["headline"] + " " + df["article"]
+
 """### Sentiment Analysis using SentimentIntensityAnalyzer """
 
 df_copy1 = df.copy()
